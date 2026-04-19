@@ -27,8 +27,8 @@ API REST desarrollada con Flask y SQLite para gestionar notas de forma eficiente
 1. Clonar el repositorio:
 
 ```bash
-git clone https://github.com/tu-usuario/tu-repo.git
-cd tu-repo
+git clone https://github.com/Lev-w/gestor-tareas-sqlite
+cd gestor-tareas-sqlite
 ```
 
 2. Crear entorno virtual (opcional pero recomendado):

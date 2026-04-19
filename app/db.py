@@ -62,6 +62,9 @@ def obtener_notas_avanzado(completada, buscar, limit, offset, orden):
         query = "SELECT * FROM notas"
         condiciones = []
         valores = []
+        columnas_validas = ["id", "titulo", "fecha_creacion"]
+        if orden not in columnas_validas:
+            orden = "id"
         if completada is not None:
             condiciones.append("completada = ?")
             valores.append(completada)

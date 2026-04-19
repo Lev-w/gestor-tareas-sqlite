@@ -40,26 +40,13 @@ def obtener_notas():
         limit = 5
 
     offset = (page - 1) * limit
-
-    columnas_validas = ["id", "titulo", "fecha_creacion"]
-    if orden not in columnas_validas:
-        orden = "id"
     
     notas = servicios.obtener_notas_avanzado(completada, buscar, limit, offset, orden)
     total = servicios.contar_notas(completada, buscar)
 
     total_pages = (total + limit - 1) // limit
 
-    resultado = [
-        {
-            "id": n["id"],
-            "titulo": n["titulo"],
-            "contenido": n["contenido"],
-            "fecha": n["fecha_creacion"],
-            "completada": n["completada"]
-        }
-        for n in notas
-    ]
+    resultado = servicios.serializar_notas(notas)
 
     return jsonify({
         "page": page,
@@ -73,16 +60,20 @@ def obtener_notas():
 def crear_nota():
     data = request.get_json()
 
-    print("DATA RECIBIDA:", data)
+    if not data:
+        return jsonify({"error": "Se requiere JSON"}), 400
 
-    titulo = data.get("titulo") if data else None
-    contenido = data.get("contenido") if data else None
+    titulo = data.get("titulo")
+    contenido = data.get("contenido")
 
-    print("TITULO:", titulo)
-    print("CONTENIDO:", contenido)
-
-    if not titulo or not contenido:
-        return jsonify({"error": "Faltan datos"}), 400
+    if not titulo or not titulo.strip():
+        return jsonify({"error": "El titulo es obligatorio"}), 400
+    
+    if not contenido or not contenido.strip():
+        return jsonify({"error": "El contenido es obligatorio"}), 400
+    
+    titulo = titulo.strip()
+    contenido = contenido.strip()
 
     servicios.crear_nota(titulo, contenido)
 
@@ -107,15 +98,31 @@ def obtener_nota(id_nota):
 def editar_nota(id_nota):
     data = request.get_json()
 
+    if not data:
+        return jsonify({"error": "Se requiere JSON"}), 400
+    
     titulo = data.get("titulo")
     contenido = data.get("contenido")
+
+    if titulo is None and contenido is None:
+        return jsonify({"error": "Debe actualizar al menos un campo"}), 400
+    
+    if titulo is not None:
+        if not titulo.strip() or not isinstance(titulo, str):
+            return jsonify({"error": "El titulo debe ser texto valido"}), 400
+        titulo = titulo.strip()
+        
+    if contenido is not None:
+        if not contenido.strip() or not isinstance(titulo, str):
+            return jsonify({"error": "El contenido debe ser texto valido"}), 400
+        contenido = contenido.strip()
 
     ok = servicios.editar_nota(id_nota, titulo, contenido)
 
     if not ok:
         return jsonify({"error": "No existe"}), 404
     
-    return jsonify({"mensaje": "Actualizada"})
+    return jsonify({"mensaje": "Actualizada"}), 200
 
 @main.route("/notas/<int:id_nota>", methods=["DELETE"])
 def eliminar_nota(id_nota):

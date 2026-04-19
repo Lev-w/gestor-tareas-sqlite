@@ -26,3 +26,15 @@ def obtener_notas_avanzado(completada, buscar, limit, offset, orden):
 
 def contar_notas(completada, buscar):
     return db.contar_notas(completada, buscar)
+
+def serializar_nota(n):
+    return {
+        "id": n["id"],
+        "titulo": n["titulo"],
+        "contenido": n["contenido"],
+        "fecha": n["fecha_creacion"],
+        "completada": n["completada"]
+    }
+
+def serializar_notas(notas):
+    return [serializar_nota(n) for n in notas]
